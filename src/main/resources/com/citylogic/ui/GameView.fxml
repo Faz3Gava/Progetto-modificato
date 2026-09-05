@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import com.citylogic.ui.CityMapCanvas?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.citylogic.ui.GameViewController"
+            styleClass="main-container">
+
+    <!-- TOP HEADER & METRIC CARDS -->
+    <top>
+        <VBox spacing="8" styleClass="header-box">
+            <HBox alignment="CENTER_LEFT" spacing="16" styleClass="top-nav">
+                <Label text="CityLogic" styleClass="brand-title" />
+                <Label text="JavaFX Desktop Simulation" styleClass="brand-subtitle" />
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Label fx:id="tickLabel" text="Tick #0" styleClass="badge-tick" />
+                <Label fx:id="statusMessageLabel" text="Ready" styleClass="status-message" />
+            </HBox>
+
+            <!-- METRIC HUD -->
+            <HBox spacing="14" alignment="CENTER" styleClass="metrics-bar">
+                <!-- Budget Card -->
+                <VBox styleClass="metric-card">
+                    <Label text="MUNICIPAL TREASURY" styleClass="metric-label" />
+                    <HBox alignment="BASELINE_LEFT" spacing="6">
+                        <Label fx:id="budgetLabel" text="\$2,500" styleClass="metric-val, metric-budget" />
+                        <Label fx:id="budgetDeltaLabel" text="+0/tick" styleClass="metric-delta" />
+                    </HBox>
+                </VBox>
+
+                <!-- Population Card -->
+                <VBox styleClass="metric-card">
+                    <Label text="CITIZEN POPULATION" styleClass="metric-label" />
+                    <HBox alignment="BASELINE_LEFT" spacing="6">
+                        <Label fx:id="populationLabel" text="8" styleClass="metric-val, metric-pop" />
+                        <Label fx:id="populationDeltaLabel" text="+0" styleClass="metric-delta" />
+                    </HBox>
+                </VBox>
+
+                <!-- Happiness Card -->
+                <VBox styleClass="metric-card, metric-card-wide">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="PUBLIC APPROVAL" styleClass="metric-label" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="happinessLabel" text="70.0%" styleClass="metric-val-sm" />
+                    </HBox>
+                    <ProgressBar fx:id="happinessBar" progress="0.70" prefWidth="180" styleClass="progress-happy" />
+                </VBox>
+
+                <!-- Pollution Card -->
+                <VBox styleClass="metric-card, metric-card-wide">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="POLLUTION INDEX" styleClass="metric-label" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="pollutionLabel" text="0.0 ppm" styleClass="metric-val-sm" />
+                    </HBox>
+                    <ProgressBar fx:id="pollutionBar" progress="0.0" prefWidth="180" styleClass="progress-pollution" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <!-- SIMULATION SPEED & TICK CONTROLS -->
+                <HBox spacing="10" alignment="CENTER" styleClass="sim-controls">
+                    <Button fx:id="stepTickBtn" text="⏭ Step" styleClass="btn-step" />
+                    <Button fx:id="playPauseBtn" text="▶ Play" styleClass="btn-play" />
+
+                    <VBox alignment="CENTER" spacing="2">
+                        <HBox spacing="4" alignment="CENTER">
+                            <Label text="Speed:" styleClass="speed-text" />
+                            <Label fx:id="speedLabel" text="1.0x" styleClass="speed-val" />
+                        </HBox>
+                        <Slider fx:id="speedSlider" min="0.5" max="5.0" value="1.0" prefWidth="100" />
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <!-- BUILD TOOLBAR -->
+            <ToolBar styleClass="build-toolbar">
+                <Label text="Toolbox:" styleClass="toolbar-section-label" />
+                <ToggleButton fx:id="selectToolBtn" text="🔍 Select" styleClass="tool-btn" />
+                <ToggleButton fx:id="demolishToolBtn" text="🔨 Demolish" styleClass="tool-btn, tool-btn-danger" />
+
+                <Separator orientation="VERTICAL" />
+                <Label text="Zoning:" styleClass="toolbar-section-label" />
+
+                <ToggleButton fx:id="houseBtn" text="🏠 House ($100)" styleClass="tool-btn, tool-residential" />
+                <ToggleButton fx:id="commercialBtn" text="🏢 Commercial ($350)" styleClass="tool-btn, tool-commercial" />
+                <ToggleButton fx:id="factoryBtn" text="🏭 Factory ($1000)" styleClass="tool-btn, tool-industrial" />
+                <ToggleButton fx:id="parkBtn" text="🌲 Park ($150)" styleClass="tool-btn, tool-civic" />
+                <ToggleButton fx:id="solarBtn" text="⚡ Solar Plant ($750)" styleClass="tool-btn, tool-utility" />
+            </ToolBar>
+        </VBox>
+    </top>
+
+    <!-- CENTER GRID CANVAS -->
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="canvas-scroll-pane">
+            <StackPane alignment="CENTER" styleClass="canvas-container">
+                <CityMapCanvas fx:id="mapCanvas" />
+            </StackPane>
+        </ScrollPane>
+    </center>
+
+    <!-- RIGHT SIDEBAR: INSPECTOR, POLICIES & AUDIT LOG -->
+    <right>
+        <VBox prefWidth="360" spacing="14" styleClass="sidebar">
+            <padding>
+                <Insets top="12" right="16" bottom="16" left="12" />
+            </padding>
+
+            <!-- BUILDING INSPECTOR -->
+            <TitledPane text="Tile &amp; Building Inspector" expanded="true" styleClass="panel-titled">
+                <VBox fx:id="inspectorPanel" spacing="8" styleClass="inspector-box">
+                    <Label fx:id="inspectorTitle" text="No Tile Selected" styleClass="inspector-header" />
+
+                    <GridPane hgap="8" vgap="6">
+                        <Label text="Coordinates:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="meta-label" />
+                        <Label fx:id="inspectorCoords" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="meta-val" />
+
+                        <Label text="Footprint:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="meta-label" />
+                        <Label fx:id="inspectorFootprint" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="meta-val" />
+
+                        <Label text="Category:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="meta-label" />
+                        <Label fx:id="inspectorCategory" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="meta-val" />
+
+                        <Label text="Base Yield:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="meta-label" />
+                        <Label fx:id="inspectorProduction" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1" wrapText="true" styleClass="meta-val-highlight" />
+                    </GridPane>
+
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Button fx:id="togglePowerBtn" text="⚡ Power: ON" styleClass="btn-secondary" disable="true" />
+                        <Button fx:id="demolishSelectedBtn" text="Demolish" styleClass="btn-danger-outline" disable="true" />
+                    </HBox>
+                </VBox>
+            </TitledPane>
+
+            <!-- MUNICIPAL POLICIES -->
+            <TitledPane text="Municipal Policies (City Council)" expanded="true" styleClass="panel-titled">
+                <VBox spacing="10" styleClass="policies-box">
+                    <VBox spacing="2">
+                        <CheckBox fx:id="envTaxCheck" text="Environmental Tax" styleClass="policy-check" />
+                        <Label text="+$60 per factory, -1.5% industrial happiness" styleClass="policy-desc" wrapText="true" />
+                    </VBox>
+
+                    <VBox spacing="2">
+                        <CheckBox fx:id="greenSubsidyCheck" text="Green Subsidy" styleClass="policy-check" />
+                        <Label text="-$15 per park: +2.5% happiness, cleans -2.0 smog" styleClass="policy-desc" wrapText="true" />
+                    </VBox>
+
+                    <VBox spacing="2">
+                        <CheckBox fx:id="ecoBufferCheck" text="Eco-Buffer Initiative" styleClass="policy-check" />
+                        <Label text="Parks within radius 2 filter factory smog (-4.0)" styleClass="policy-desc" wrapText="true" />
+                    </VBox>
+
+                    <VBox spacing="2">
+                        <CheckBox fx:id="housingCheck" text="Housing Development Grant" styleClass="policy-check" />
+                        <Label text="-$8 per house: +2 citizens influx per house" styleClass="policy-desc" wrapText="true" />
+                    </VBox>
+                </VBox>
+            </TitledPane>
+
+            <!-- SIMULATION LOGS -->
+            <TitledPane text="Simulation Audit Log" expanded="true" VBox.vgrow="ALWAYS" styleClass="panel-titled">
+                <VBox spacing="6">
+                    <ListView fx:id="logListView" VBox.vgrow="ALWAYS" prefHeight="180" styleClass="log-list-view" />
+                </VBox>
+            </TitledPane>
+        </VBox>
+    </right>
+</BorderPane>

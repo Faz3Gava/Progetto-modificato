@@ -1,0 +1,8 @@
+{
+  "name": "CityLogic",
+  "description": "CityLogic — Progetto Java (JavaFX + Maven): simulazione municipale transazionale, pianificazione spaziale della griglia e architettura Domain-Driven Design.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
