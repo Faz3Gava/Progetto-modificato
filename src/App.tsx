@@ -7,17 +7,73 @@ import {
   Terminal, 
   Folder, 
   Search, 
-  Play, 
   CheckCircle2, 
   Layers, 
   BookOpen, 
   Code2,
   Cpu,
-  ShieldCheck,
-  ChevronRight
+  ShieldCheck
 } from 'lucide-react';
 import JSZip from 'jszip';
-import { JAVA_PROJECT_FILES, JavaSourceFile } from './data/javaFiles';
+
+export interface JavaSourceFile {
+  path: string;
+  name: string;
+  category: 'core' | 'map' | 'buildings' | 'tick' | 'application' | 'policies' | 'ui' | 'config' | 'test';
+  language: 'java' | 'xml' | 'css' | 'markdown' | 'bash' | 'text';
+  code: string;
+}
+
+// Dynamically load all Java, FXML, XML, and config files directly from the filesystem
+const rawFiles = (import.meta as any).glob(
+  [
+    './main/java/**/*.java',
+    './main/resources/**/*',
+    './test/java/**/*.java',
+    '../pom.xml',
+    '../JAVA_README.md',
+    '../run.sh',
+    '../run.bat'
+  ],
+  { query: '?raw', eager: true, import: 'default' }
+) as Record<string, string>;
+
+function getCategory(p: string): JavaSourceFile['category'] {
+  if (p.includes('domain/core')) return 'core';
+  if (p.includes('domain/map')) return 'map';
+  if (p.includes('domain/buildings')) return 'buildings';
+  if (p.includes('domain/tick')) return 'tick';
+  if (p.includes('application/policies')) return 'policies';
+  if (p.includes('application')) return 'application';
+  if (p.includes('ui') || p.includes('Main.java')) return 'ui';
+  if (p.includes('test')) return 'test';
+  return 'config';
+}
+
+function getLanguage(p: string): JavaSourceFile['language'] {
+  if (p.endsWith('.java')) return 'java';
+  if (p.endsWith('.xml') || p.endsWith('.fxml')) return 'xml';
+  if (p.endsWith('.css')) return 'css';
+  if (p.endsWith('.md')) return 'markdown';
+  if (p.endsWith('.sh') || p.endsWith('.bat')) return 'bash';
+  return 'text';
+}
+
+const JAVA_PROJECT_FILES: JavaSourceFile[] = Object.entries(rawFiles).map(([rawPath, code]) => {
+  // Normalize path to Maven standard relative path
+  let cleanPath = rawPath.replace(/^\.\.\//, '').replace(/^\.\//, 'src/');
+  if (!cleanPath.startsWith('src/') && !['pom.xml', 'JAVA_README.md', 'run.sh', 'run.bat'].includes(cleanPath)) {
+    cleanPath = 'src/' + cleanPath;
+  }
+  const name = cleanPath.split('/').pop() || cleanPath;
+  return {
+    path: cleanPath,
+    name,
+    category: getCategory(cleanPath),
+    language: getLanguage(cleanPath),
+    code: code || ''
+  };
+}).sort((a, b) => a.path.localeCompare(b.path));
 
 export function App() {
   const [selectedFile, setSelectedFile] = useState<JavaSourceFile>(() => {
@@ -52,6 +108,7 @@ export function App() {
   }, [selectedCategory, searchTerm]);
 
   const handleCopy = () => {
+    if (!selectedFile) return;
     navigator.clipboard.writeText(selectedFile.code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -62,7 +119,6 @@ export function App() {
       setIsZipping(true);
       const zip = new JSZip();
 
-      // Add all project files into standard Maven structure
       JAVA_PROJECT_FILES.forEach(file => {
         zip.file(file.path, file.code);
       });
@@ -83,11 +139,11 @@ export function App() {
     }
   };
 
-  const lines = selectedFile.code.split('\n');
+  const lines = selectedFile ? selectedFile.code.split('\n') : [];
 
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-950 text-slate-100 overflow-hidden font-sans">
-      {/* Main Top Header */}
+      {/* Header */}
       <header className="bg-slate-900 border-b border-slate-800 px-6 py-3.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center font-bold text-lg shadow-sm">
@@ -103,7 +159,7 @@ export function App() {
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Architettura Domain-Driven Design (DDD), pipeline di simulazione a tick transazionali, canvas interattivo e GUI FXML
+              Progetto nativo Java Maven: architettura DDD, motore di simulazione transazionale, canvas interattivo e GUI FXML
             </p>
           </div>
         </div>
@@ -136,7 +192,7 @@ export function App() {
               activeTab === 'code' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
             }`}
           >
-            <Code2 className="w-3.5 h-3.5" /> Esplora Codice ({JAVA_PROJECT_FILES.length} file)
+            <Code2 className="w-3.5 h-3.5" /> Esplora Codice Java ({JAVA_PROJECT_FILES.length} file)
           </button>
           <button
             onClick={() => setActiveTab('instructions')}
@@ -144,7 +200,7 @@ export function App() {
               activeTab === 'instructions' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
             }`}
           >
-            <BookOpen className="w-3.5 h-3.5" /> Guida all'Avvio Locale
+            <BookOpen className="w-3.5 h-3.5" /> Guida all'Avvio Locale (Maven)
           </button>
           <button
             onClick={() => setActiveTab('architecture')}
@@ -152,12 +208,12 @@ export function App() {
               activeTab === 'architecture' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
             }`}
           >
-            <Layers className="w-3.5 h-3.5" /> Struttura &amp; Invarianti
+            <Layers className="w-3.5 h-3.5" /> Architettura &amp; Domain Model
           </button>
         </div>
 
         <div className="text-[11px] text-slate-400">
-          <span>Solo codice sorgente Java puro (Maven layout)</span>
+          <span>Standard Maven layout (<code>pom.xml</code> + <code>src/main/java</code>)</span>
         </div>
       </div>
 
@@ -200,7 +256,7 @@ export function App() {
             {/* File List */}
             <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
               {filteredFiles.map(file => {
-                const isSelected = selectedFile.path === file.path;
+                const isSelected = selectedFile?.path === file.path;
                 return (
                   <button
                     key={file.path}
@@ -242,37 +298,45 @@ export function App() {
 
           {/* Right Editor: Code Viewer */}
           <main className="flex-1 flex flex-col bg-slate-950 overflow-hidden">
-            {/* File Info & Action Bar */}
-            <div className="px-5 py-2.5 bg-slate-900/70 border-b border-slate-800 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2 text-xs font-mono">
-                <Folder className="w-3.5 h-3.5 text-indigo-400" />
-                <span className="text-slate-400">{selectedFile.path}</span>
-                <span className="text-slate-600">|</span>
-                <span className="text-slate-400">{lines.length} linee</span>
-              </div>
+            {selectedFile ? (
+              <>
+                {/* File Info & Action Bar */}
+                <div className="px-5 py-2.5 bg-slate-900/70 border-b border-slate-800 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2 text-xs font-mono">
+                    <Folder className="w-3.5 h-3.5 text-indigo-400" />
+                    <span className="text-slate-400">{selectedFile.path}</span>
+                    <span className="text-slate-600">|</span>
+                    <span className="text-slate-400">{lines.length} linee</span>
+                  </div>
 
-              <button
-                onClick={handleCopy}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors cursor-pointer border border-slate-700"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Copiato!' : 'Copia Codice'}</span>
-              </button>
-            </div>
-
-            {/* Code Content with Line Numbers */}
-            <div className="flex-1 overflow-auto p-4 font-mono text-[12.5px] leading-relaxed text-slate-300 selection:bg-indigo-500/30">
-              <div className="flex">
-                <div className="select-none text-right pr-4 text-slate-600 font-mono text-[11.5px] border-r border-slate-800/80 mr-4">
-                  {lines.map((_, i) => (
-                    <div key={i}>{i + 1}</div>
-                  ))}
+                  <button
+                    onClick={handleCopy}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors cursor-pointer border border-slate-700"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copied ? 'Copiato!' : 'Copia Codice'}</span>
+                  </button>
                 </div>
-                <pre className="flex-1 whitespace-pre overflow-x-auto text-slate-200">
-                  {selectedFile.code}
-                </pre>
+
+                {/* Code Content with Line Numbers */}
+                <div className="flex-1 overflow-auto p-4 font-mono text-[12.5px] leading-relaxed text-slate-300 selection:bg-indigo-500/30">
+                  <div className="flex">
+                    <div className="select-none text-right pr-4 text-slate-600 font-mono text-[11.5px] border-r border-slate-800/80 mr-4">
+                      {lines.map((_, i) => (
+                        <div key={i}>{i + 1}</div>
+                      ))}
+                    </div>
+                    <pre className="flex-1 whitespace-pre overflow-x-auto text-slate-200">
+                      {selectedFile.code}
+                    </pre>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
+                Seleziona un file dall'elenco a sinistra per visualizzarlo.
               </div>
-            </div>
+            )}
           </main>
         </div>
       )}
@@ -399,7 +463,7 @@ export function App() {
                   <Folder className="w-3.5 h-3.5" /> com.citylogic.domain.map
                 </h4>
                 <p className="text-slate-400">
-                  <strong>Grid:</strong> Matrice 2D che implementa <code className="text-slate-300">IGridReadPort</code> (lettura) e <code className="text-slate-300">IGridCommandPort</code> (comandi di costruzione/demolizione). Supporta footprint multi-tile (es. 2x2 per le fabbriche) e metodi <code className="text-slate-300">isOccupied</code> / <code className="text-slate-300">GetBuilding</code>.
+                  <strong>Grid:</strong> Matrice 2D che implementa <code className="text-slate-300">IGridReadPort</code> e <code className="text-slate-300">IGridCommandPort</code>. Supporta footprint multi-tile (es. 2x2 per le fabbriche) e metodi <code className="text-slate-300">isOccupied</code> / <code className="text-slate-300">GetBuilding</code>.
                 </p>
               </div>
 

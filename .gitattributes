@@ -1,0 +1,16 @@
+# GitHub Linguist Configuration
+# Mark web preview UI / TypeScript files as vendored so they are excluded from GitHub language stats
+*.ts linguist-vendored
+*.tsx linguist-vendored
+*.js linguist-vendored
+*.css linguist-vendored
+*.html linguist-vendored
+package.json linguist-vendored
+tsconfig.json linguist-vendored
+vite.config.ts linguist-vendored
+bun.lock linguist-vendored
+index.html linguist-vendored
+
+# Ensure Java and Maven XML are detected and highlighted as the primary language
+*.java linguist-detectable=true
+*.xml linguist-detectable=true
