@@ -18,6 +18,7 @@ import com.citylogic.domain.core.CitySnapshot;
 import com.citylogic.domain.core.Dimension;
 import com.citylogic.domain.core.Point;
 import com.citylogic.domain.core.ResourceDelta;
+import com.citylogic.domain.map.Cell;
 import com.citylogic.domain.map.Grid;
 import com.citylogic.domain.tick.SimulationConfig;
 import com.citylogic.domain.tick.SimulationEngine;

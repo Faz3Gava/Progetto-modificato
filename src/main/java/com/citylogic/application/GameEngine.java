@@ -4,6 +4,7 @@ import com.citylogic.application.policies.IPolicyStrategy;
 import com.citylogic.domain.buildings.BuildingDescription;
 import com.citylogic.domain.buildings.IBuildingState;
 import com.citylogic.domain.core.CitySnapshot;
+import com.citylogic.domain.core.Point;
 import com.citylogic.domain.map.IGridCommandPort;
 import com.citylogic.domain.map.IGridReadPort;
 import com.citylogic.domain.tick.SimulationEngine;
