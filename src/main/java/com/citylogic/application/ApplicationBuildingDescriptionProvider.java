@@ -14,21 +14,23 @@ public class ApplicationBuildingDescriptionProvider {
         }
 
         // 1. House (Residential)
-        // Accommodates 4 citizens, requires nominal maintenance ($1)
+        // Accommodates 4 citizens, requires nominal maintenance ($1), consumes 2 kW energy
         BuildingDescription house = new BuildingDescription(
             "House",
             100.0,
             1.0,
             new Dimension(1, 1),
-            new ResourceDelta(0.0, 0.0, 4, 0.0),
+            new ResourceDelta(0.0, 0.0, 4, 0.5),
             BuildingDescription.Category.RESIDENTIAL,
             "Home",
-            "Residential housing providing living space for 4 citizens."
+            "Residential housing for 4 citizens. Consumes 2 kW electricity; unpowered homes suffer satisfaction penalties.",
+            0,
+            2
         );
         catalog.register(house);
 
         // 2. Factory (Industrial)
-        // High budget output (+150), high pollution output (+10), 2x2 footprint
+        // High budget output (+150), high pollution output (+10), 2x2 footprint, consumes 5 kW
         BuildingDescription factory = new BuildingDescription(
             "Factory",
             1000.0,
@@ -37,12 +39,14 @@ public class ApplicationBuildingDescriptionProvider {
             new ResourceDelta(150.0, 10.0, 0, 0.0),
             BuildingDescription.Category.INDUSTRIAL,
             "Factory",
-            "Heavy manufacturing facility generating strong tax revenue at the cost of pollution."
+            "Heavy manufacturing facility generating strong tax revenue at the cost of pollution. Consumes 5 kW electricity.",
+            0,
+            5
         );
         catalog.register(factory);
 
         // 3. Park (Civic)
-        // Zero maintenance, elevates citizen happiness (+2.0%)
+        // Zero maintenance, elevates citizen happiness (+2.0%), zero energy
         BuildingDescription park = new BuildingDescription(
             "Park",
             150.0,
@@ -51,12 +55,14 @@ public class ApplicationBuildingDescriptionProvider {
             new ResourceDelta(0.0, 0.0, 0, 2.0),
             BuildingDescription.Category.CIVIC,
             "Trees",
-            "Recreational public park that elevates citizen happiness and well-being."
+            "Recreational public park that elevates citizen happiness and well-being.",
+            0,
+            0
         );
         catalog.register(park);
 
         // 4. Commercial Hub (Commercial)
-        // Moderate revenue (+45), minor pollution (+1), modest happiness (+0.5%)
+        // Moderate revenue (+45), minor pollution (+1), modest happiness (+0.5%), consumes 3 kW
         BuildingDescription commercial = new BuildingDescription(
             "Commercial Hub",
             350.0,
@@ -65,12 +71,14 @@ public class ApplicationBuildingDescriptionProvider {
             new ResourceDelta(45.0, 1.0, 0, 0.5),
             BuildingDescription.Category.COMMERCIAL,
             "Store",
-            "Retail and service district contributing steady tax revenue and urban vibrancy."
+            "Retail and service district contributing steady tax revenue and urban vibrancy. Consumes 3 kW electricity.",
+            0,
+            3
         );
         catalog.register(commercial);
 
         // 5. Solar Plant (Utility)
-        // Clean renewable energy: actively reduces smog (-4.0), requires maintenance (-$25), 2x2 footprint
+        // Clean renewable energy: actively produces 20 kW electricity, reduces smog (-4.0), requires maintenance (-$25), 2x2 footprint
         BuildingDescription solarPlant = new BuildingDescription(
             "Solar Plant",
             750.0,
@@ -79,7 +87,9 @@ public class ApplicationBuildingDescriptionProvider {
             new ResourceDelta(-25.0, -4.0, 0, 1.0),
             BuildingDescription.Category.UTILITY,
             "Sun",
-            "Renewable photovoltaic solar plant providing clean electricity and mitigating smog."
+            "Renewable photovoltaic solar plant generating 20 kW clean electricity and mitigating smog.",
+            20,
+            0
         );
         catalog.register(solarPlant);
     }

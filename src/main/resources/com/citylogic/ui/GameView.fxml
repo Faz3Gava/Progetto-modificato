@@ -62,6 +62,16 @@
                     <ProgressBar fx:id="pollutionBar" progress="0.0" prefWidth="180" styleClass="progress-pollution" />
                 </VBox>
 
+                <!-- Energy Grid Card -->
+                <VBox styleClass="metric-card, metric-card-wide">
+                    <HBox alignment="CENTER_LEFT">
+                        <Label text="POWER GRID" styleClass="metric-label" />
+                        <Region HBox.hgrow="ALWAYS" />
+                        <Label fx:id="energyStatusLabel" text="0 / 0 kW" styleClass="metric-val-sm" />
+                    </HBox>
+                    <ProgressBar fx:id="energyBar" progress="1.0" prefWidth="180" styleClass="progress-energy" />
+                </VBox>
+
                 <Region HBox.hgrow="ALWAYS" />
 
                 <!-- SIMULATION SPEED & TICK CONTROLS -->
@@ -128,8 +138,11 @@
                         <Label text="Category:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="meta-label" />
                         <Label fx:id="inspectorCategory" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="meta-val" />
 
-                        <Label text="Base Yield:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="meta-label" />
-                        <Label fx:id="inspectorProduction" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1" wrapText="true" styleClass="meta-val-highlight" />
+                        <Label text="Power / Grid:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="meta-label" />
+                        <Label fx:id="inspectorEnergy" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="meta-val" />
+
+                        <Label text="Base Yield:" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="meta-label" />
+                        <Label fx:id="inspectorProduction" text="-" GridPane.rowIndex="4" GridPane.columnIndex="1" wrapText="true" styleClass="meta-val-highlight" />
                     </GridPane>
 
                     <HBox spacing="8" alignment="CENTER_LEFT">

@@ -199,10 +199,46 @@ public class GameEngine {
         Optional<IBuildingState> opt = gridReader.getBuildingById(buildingId);
         if (opt.isPresent()) {
             IBuildingState building = opt.get();
-            building.setPowered(!building.isPowered());
+            boolean newShutdown = !building.isManualShutdown();
+            building.setManualShutdown(newShutdown);
+            building.setPowered(!newShutdown);
             return true;
         }
         return false;
+    }
+
+    public int getTotalEnergyProduction() {
+        int sum = 0;
+        for (IBuildingState b : gridReader.getAllBuildings()) {
+            if (b.getEnergyProduction() > 0 && !b.isManualShutdown()) {
+                sum += b.getEnergyProduction();
+            }
+        }
+        return sum;
+    }
+
+    public int getTotalEnergyConsumption() {
+        int sum = 0;
+        for (IBuildingState b : gridReader.getAllBuildings()) {
+            if (b.getEnergyConsumption() > 0 && !b.isManualShutdown()) {
+                sum += b.getEnergyConsumption();
+            }
+        }
+        return sum;
+    }
+
+    public int getEnergySurplus() {
+        return getTotalEnergyProduction() - getTotalEnergyConsumption();
+    }
+
+    public int getUnpoweredHousesCount() {
+        int count = 0;
+        for (IBuildingState b : gridReader.getAllBuildings()) {
+            if (b.getDescription().getCategory() == BuildingDescription.Category.RESIDENTIAL && !b.isPowered()) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public static class PlacementResult {

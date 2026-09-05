@@ -26,6 +26,8 @@ public final class BuildingDescription {
     private final Category category;
     private final String icon;
     private final String descriptionText;
+    private final int energyProduction;
+    private final int energyConsumption;
 
     public BuildingDescription(
             String name,
@@ -35,7 +37,9 @@ public final class BuildingDescription {
             ResourceDelta baseProduction,
             Category category,
             String icon,
-            String descriptionText) {
+            String descriptionText,
+            int energyProduction,
+            int energyConsumption) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Building name cannot be null or empty");
         }
@@ -54,6 +58,20 @@ public final class BuildingDescription {
         this.category = category != null ? category : Category.RESIDENTIAL;
         this.icon = icon != null ? icon : "Building";
         this.descriptionText = descriptionText != null ? descriptionText : "";
+        this.energyProduction = Math.max(0, energyProduction);
+        this.energyConsumption = Math.max(0, energyConsumption);
+    }
+
+    public BuildingDescription(
+            String name,
+            double constructionCost,
+            double baseMaintenanceCost,
+            Dimension footprint,
+            ResourceDelta baseProduction,
+            Category category,
+            String icon,
+            String descriptionText) {
+        this(name, constructionCost, baseMaintenanceCost, footprint, baseProduction, category, icon, descriptionText, 0, 0);
     }
 
     public BuildingDescription(
@@ -62,7 +80,7 @@ public final class BuildingDescription {
             double baseMaintenanceCost,
             Dimension footprint,
             ResourceDelta baseProduction) {
-        this(name, constructionCost, baseMaintenanceCost, footprint, baseProduction, Category.RESIDENTIAL, "Building", "");
+        this(name, constructionCost, baseMaintenanceCost, footprint, baseProduction, Category.RESIDENTIAL, "Building", "", 0, 0);
     }
 
     public String getTypeId() {
@@ -99,6 +117,18 @@ public final class BuildingDescription {
 
     public String getDescriptionText() {
         return descriptionText;
+    }
+
+    public int getEnergyProduction() {
+        return energyProduction;
+    }
+
+    public int getEnergyConsumption() {
+        return energyConsumption;
+    }
+
+    public int getNetEnergy() {
+        return energyProduction - energyConsumption;
     }
 
     @Override

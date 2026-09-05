@@ -109,6 +109,16 @@
     -fx-background-radius: 4px;
 }
 
+.progress-energy .track {
+    -fx-background-color: #334155;
+    -fx-background-radius: 4px;
+}
+
+.progress-energy .bar {
+    -fx-background-color: linear-gradient(to right, #0ea5e9, #22c55e);
+    -fx-background-radius: 4px;
+}
+
 /* Simulation Controls */
 .sim-controls {
     -fx-background-color: #1e293b;

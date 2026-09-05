@@ -14,6 +14,8 @@ public class CityAggregate {
     private int population;
     private double happiness;
     private int tickCount;
+    private int energyProduced;
+    private int energyConsumed;
 
     public CityAggregate(double initialBudget, int initialPopulation, double initialHappiness) {
         this.budget = initialBudget;
@@ -21,11 +23,26 @@ public class CityAggregate {
         this.population = initialPopulation;
         this.happiness = clamp(initialHappiness);
         this.tickCount = 0;
+        this.energyProduced = 0;
+        this.energyConsumed = 0;
         validateInvariants();
     }
 
     public CityAggregate() {
         this(2500.0, 0, 70.0);
+    }
+
+    public synchronized void setEnergyMetrics(int produced, int consumed) {
+        this.energyProduced = Math.max(0, produced);
+        this.energyConsumed = Math.max(0, consumed);
+    }
+
+    public synchronized int getEnergyProduced() {
+        return energyProduced;
+    }
+
+    public synchronized int getEnergyConsumed() {
+        return energyConsumed;
     }
 
     public synchronized void applyDelta(ResourceDelta delta) {
@@ -59,7 +76,7 @@ public class CityAggregate {
     }
 
     public synchronized CitySnapshot exportSnapshot() {
-        return new CitySnapshot(this.budget, this.pollution, this.population, this.happiness, this.tickCount);
+        return new CitySnapshot(this.budget, this.pollution, this.population, this.happiness, this.tickCount, this.energyProduced, this.energyConsumed);
     }
 
     public synchronized void restoreFromSnapshot(CitySnapshot snapshot) {
@@ -71,6 +88,8 @@ public class CityAggregate {
         this.population = snapshot.getPopulation();
         this.happiness = snapshot.getHappiness();
         this.tickCount = snapshot.getTickCount();
+        this.energyProduced = snapshot.getEnergyProduced();
+        this.energyConsumed = snapshot.getEnergyConsumed();
         validateInvariants();
     }
 

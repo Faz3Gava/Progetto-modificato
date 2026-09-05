@@ -31,4 +31,27 @@ public interface IBuildingState {
     default IBuildingState getBuilding() {
         return this;
     }
+
+    default int getEnergyProduction() {
+        return getDescription() != null ? getDescription().getEnergyProduction() : 0;
+    }
+
+    default int getEnergyConsumption() {
+        return getDescription() != null ? getDescription().getEnergyConsumption() : 0;
+    }
+
+    default int getNetEnergy() {
+        return getEnergyProduction() - getEnergyConsumption();
+    }
+
+    default boolean hasEnergyAccess() {
+        return isPowered();
+    }
+
+    default boolean isManualShutdown() {
+        return false;
+    }
+
+    default void setManualShutdown(boolean manualShutdown) {
+    }
 }

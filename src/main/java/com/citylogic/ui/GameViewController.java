@@ -55,6 +55,8 @@ public class GameViewController implements Initializable, ICityObserver {
     @FXML private ProgressBar happinessBar;
     @FXML private Label pollutionLabel;
     @FXML private ProgressBar pollutionBar;
+    @FXML private Label energyStatusLabel;
+    @FXML private ProgressBar energyBar;
     @FXML private Label tickLabel;
     @FXML private Label statusMessageLabel;
 
@@ -80,6 +82,7 @@ public class GameViewController implements Initializable, ICityObserver {
     @FXML private Label inspectorCoords;
     @FXML private Label inspectorFootprint;
     @FXML private Label inspectorCategory;
+    @FXML private Label inspectorEnergy;
     @FXML private Label inspectorProduction;
     @FXML private Button togglePowerBtn;
     @FXML private Button demolishSelectedBtn;
@@ -135,6 +138,7 @@ public class GameViewController implements Initializable, ICityObserver {
         gameEngine.placeBuilding(4, 3, "house", false);
         gameEngine.placeBuilding(5, 3, "park", false);
         gameEngine.placeBuilding(3, 5, "commercial_hub", false);
+        gameEngine.placeBuilding(7, 3, "solar_plant", false);
 
         // 4. Initialize Canvas
         mapCanvas.init(grid, catalog);
@@ -358,6 +362,35 @@ public class GameViewController implements Initializable, ICityObserver {
             pollutionLabel.setText(String.format("%.1f ppm", snapshot.getPollution()));
             pollutionBar.setProgress(Math.min(1.0, snapshot.getPollution() / 150.0));
 
+            // Energy grid HUD
+            int produced = snapshot.getEnergyProduced();
+            int consumed = snapshot.getEnergyConsumed();
+            int surplus = produced - consumed;
+
+            if (energyStatusLabel != null && energyBar != null) {
+                if (produced == 0 && consumed == 0) {
+                    energyStatusLabel.setText("0 / 0 kW");
+                    energyStatusLabel.setStyle("-fx-text-fill: #94a3b8;");
+                    energyBar.setProgress(1.0);
+                } else if (surplus >= 0) {
+                    energyStatusLabel.setText(String.format("⚡ %d / %d kW (+%d surplus)", produced, consumed, surplus));
+                    energyStatusLabel.setStyle("-fx-text-fill: #22c55e; -fx-font-weight: bold;");
+                    double ratio = produced > 0 ? Math.min(1.0, (double) consumed / produced) : 0.0;
+                    energyBar.setProgress(ratio);
+                } else {
+                    int deficit = -surplus;
+                    energyStatusLabel.setText(String.format("⚠️ %d / %d kW (-%d DEFICIT)", produced, consumed, deficit));
+                    energyStatusLabel.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+                    energyBar.setProgress(1.0);
+                }
+            }
+
+            int unpoweredHouses = gameEngine.getUnpoweredHousesCount();
+            if (unpoweredHouses > 0) {
+                setStatusMessage(String.format("⚠️ %d residential houses lack power! Satisfaction penalty: -%.1f%%/tick",
+                    unpoweredHouses, unpoweredHouses * 2.5), true);
+            }
+
             tickLabel.setText(String.format("Tick #%d", snapshot.getTickCount()));
         });
     }
@@ -368,6 +401,10 @@ public class GameViewController implements Initializable, ICityObserver {
             inspectorCoords.setText("-");
             inspectorFootprint.setText("-");
             inspectorCategory.setText("-");
+            if (inspectorEnergy != null) {
+                inspectorEnergy.setText("-");
+                inspectorEnergy.setStyle("-fx-text-fill: #94a3b8;");
+            }
             inspectorProduction.setText("-");
             togglePowerBtn.setDisable(true);
             demolishSelectedBtn.setDisable(true);
@@ -381,6 +418,10 @@ public class GameViewController implements Initializable, ICityObserver {
             inspectorTitle.setText("Empty Grassland");
             inspectorFootprint.setText("1x1");
             inspectorCategory.setText("Open Terrain");
+            if (inspectorEnergy != null) {
+                inspectorEnergy.setText("-");
+                inspectorEnergy.setStyle("-fx-text-fill: #94a3b8;");
+            }
             inspectorProduction.setText("None");
             togglePowerBtn.setDisable(true);
             demolishSelectedBtn.setDisable(true);
@@ -393,6 +434,26 @@ public class GameViewController implements Initializable, ICityObserver {
         inspectorTitle.setText(desc.getName());
         inspectorFootprint.setText(desc.getFootprint().toString());
         inspectorCategory.setText(desc.getCategory().name());
+
+        if (inspectorEnergy != null) {
+            int prod = desc.getEnergyProduction();
+            int cons = desc.getEnergyConsumption();
+            if (prod > 0) {
+                inspectorEnergy.setText(String.format("⚡ Generates %d kW (Clean Solar)", prod));
+                inspectorEnergy.setStyle("-fx-text-fill: #22c55e; -fx-font-weight: bold;");
+            } else if (cons > 0) {
+                if (building.isPowered()) {
+                    inspectorEnergy.setText(String.format("⚡ Consumes %d kW [POWERED]", cons));
+                    inspectorEnergy.setStyle("-fx-text-fill: #22c55e; -fx-font-weight: bold;");
+                } else {
+                    inspectorEnergy.setText(String.format("🔌 Consumes %d kW [NO POWER - UNHAPPY CITIZENS]", cons));
+                    inspectorEnergy.setStyle("-fx-text-fill: #ef4444; -fx-font-weight: bold;");
+                }
+            } else {
+                inspectorEnergy.setText("Passive (0 kW)");
+                inspectorEnergy.setStyle("-fx-text-fill: #94a3b8;");
+            }
+        }
         inspectorProduction.setText(String.format("Budget: %+,.0f | Citizens: %+d | Pollution: %+.1f | Happy: %+.1f%%",
             desc.getBaseProduction().getBudgetDelta(),
             desc.getBaseProduction().getPopulationDelta(),

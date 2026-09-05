@@ -113,10 +113,12 @@ public class SimulationEngineTest {
     @Test
     @DisplayName("Should aggregate base production across powered buildings in tick")
     public void testProductionPhaseTick() throws SimulationException {
-        // House produces: 0 budget, 4 citizens, 0 pollution, 0 happiness
-        // Factory produces: 150 budget, 10 pollution, 0 citizens, 0 happiness
+        // House produces: 0 budget, 4 citizens, 0 pollution, 0 happiness (consumes 2 kW)
+        // Factory produces: 150 budget, 10 pollution, 0 citizens, 0 happiness (consumes 8 kW)
+        // Solar plant produces: 20 kW clean energy
         gameEngine.placeBuilding(0, 0, "house", false);
         gameEngine.placeBuilding(2, 2, "factory", false);
+        gameEngine.placeBuilding(5, 5, "solar_plant", false);
 
         SimulationEngine.TickResult tick = gameEngine.advanceTime();
         ResourceDelta delta = tick.getDelta();
@@ -129,13 +131,16 @@ public class SimulationEngineTest {
         assertEquals(1, snapshot.getTickCount());
         assertEquals(4, snapshot.getPopulation());
         assertEquals(10.0, snapshot.getPollution(), 0.001);
+        assertEquals(20, snapshot.getEnergyProduced());
+        assertEquals(10, snapshot.getEnergyConsumed());
     }
 
     @Test
     @DisplayName("Should evaluate active policies and apply modifiers")
     public void testPolicyEvaluation() throws SimulationException {
-        // Factory base: +150 budget
+        // Factory base: +150 budget (consumes 8 kW)
         gameEngine.placeBuilding(2, 2, "factory", false);
+        gameEngine.placeBuilding(5, 5, "solar_plant", false);
 
         // Activate Environmental Tax: +$60 per factory, -1.5% happiness
         gameEngine.setCityPolicy(new EnvironmentalTaxPolicy());
@@ -146,6 +151,67 @@ public class SimulationEngineTest {
         // 150 (base) + 60 (policy) = 210
         assertEquals(210.0, delta.getBudgetDelta(), 0.001);
         assertEquals(-1.5, delta.getHappinessDelta(), 0.001);
+    }
+
+    @Test
+    @DisplayName("Unpowered residential houses must reduce citizen satisfaction rate")
+    public void testUnpoweredHouseLowersSatisfaction() throws SimulationException {
+        // Initial happiness is 70.0%
+        assertEquals(70.0, gameEngine.getCitySnapshot().getHappiness(), 0.001);
+
+        // Place a house without any energy generation
+        gameEngine.placeBuilding(2, 2, "house", false);
+
+        SimulationEngine.TickResult tick = gameEngine.advanceTime();
+        ResourceDelta delta = tick.getDelta();
+
+        // Happiness delta must be -2.5% for unpowered house
+        assertEquals(-2.5, delta.getHappinessDelta(), 0.001);
+        assertEquals(67.5, tick.getSnapshot().getHappiness(), 0.001);
+
+        // Grid reflects 0 produced and 2 kW demanded
+        assertEquals(0, tick.getSnapshot().getEnergyProduced());
+        assertEquals(2, tick.getSnapshot().getEnergyConsumed());
+        assertEquals(1, gameEngine.getUnpoweredHousesCount());
+    }
+
+    @Test
+    @DisplayName("Solar plant should supply power to house and prevent satisfaction penalty")
+    public void testSolarPlantPowersHouseAndMaintainsSatisfaction() throws SimulationException {
+        // Place house (needs 2 kW) and solar plant (supplies 20 kW)
+        gameEngine.placeBuilding(2, 2, "house", false);
+        gameEngine.placeBuilding(4, 4, "solar_plant", false);
+
+        SimulationEngine.TickResult tick = gameEngine.advanceTime();
+        ResourceDelta delta = tick.getDelta();
+
+        // Since house has energy, no happiness penalty
+        assertEquals(0.0, delta.getHappinessDelta(), 0.001);
+        assertEquals(70.0, tick.getSnapshot().getHappiness(), 0.001);
+        assertEquals(4, tick.getSnapshot().getPopulation());
+        assertEquals(20, tick.getSnapshot().getEnergyProduced());
+        assertEquals(2, tick.getSnapshot().getEnergyConsumed());
+        assertEquals(18, gameEngine.getEnergySurplus());
+        assertEquals(0, gameEngine.getUnpoweredHousesCount());
+    }
+
+    @Test
+    @DisplayName("Energy deficit causes blackout for houses that cannot be powered, dropping satisfaction")
+    public void testEnergyDeficitCausesBlackoutAndSatisfactionDrop() throws SimulationException {
+        // 1 solar plant provides 20 kW.
+        // Each house requires 2 kW.
+        // 11 houses require 22 kW -> 1 house will suffer a blackout.
+        for (int y = 0; y < 11; y++) {
+            gameEngine.placeBuilding(0, y % 10, "house", false);
+        }
+        gameEngine.placeBuilding(5, 5, "solar_plant", false);
+
+        SimulationEngine.TickResult tick = gameEngine.advanceTime();
+        ResourceDelta delta = tick.getDelta();
+
+        // 1 house without power -> -2.5% happiness penalty
+        assertEquals(-2.5, delta.getHappinessDelta(), 0.001);
+        assertEquals(67.5, tick.getSnapshot().getHappiness(), 0.001);
     }
 
     @Test

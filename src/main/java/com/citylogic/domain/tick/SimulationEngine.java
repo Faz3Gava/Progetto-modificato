@@ -72,6 +72,19 @@ public class SimulationEngine {
             throw new SimulationException("Simulation Tick Failed (Rolled back to tick " + startSnapshot.getTickCount() + "): " + err.getMessage(), err);
         }
 
+        // Update energy metrics in city state
+        int energyProduced = 0;
+        int energyConsumed = 0;
+        for (com.citylogic.domain.buildings.IBuildingState b : gridReader.getAllBuildings()) {
+            if (b.getEnergyProduction() > 0 && !b.isManualShutdown()) {
+                energyProduced += b.getEnergyProduction();
+            }
+            if (b.getEnergyConsumption() > 0 && !b.isManualShutdown()) {
+                energyConsumed += b.getEnergyConsumption();
+            }
+        }
+        cityState.setEnergyMetrics(energyProduced, energyConsumed);
+
         CitySnapshot committedSnapshot = cityState.exportSnapshot();
         this.lastDelta = totalDelta;
 

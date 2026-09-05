@@ -13,6 +13,7 @@ public class BuildingInstance implements IBuildingState {
     private final BuildingDescription description;
     private final Point position;
     private boolean powered;
+    private boolean manualShutdown = false;
     private double currentMaintenanceCost;
 
     public BuildingInstance(BuildingDescription description, int x, int y, String id) {
@@ -60,6 +61,19 @@ public class BuildingInstance implements IBuildingState {
         this.powered = powered;
     }
 
+    @Override
+    public boolean isManualShutdown() {
+        return manualShutdown;
+    }
+
+    @Override
+    public void setManualShutdown(boolean manualShutdown) {
+        this.manualShutdown = manualShutdown;
+        if (manualShutdown) {
+            this.powered = false;
+        }
+    }
+
     public double getCurrentMaintenanceCost() {
         return currentMaintenanceCost;
     }
@@ -71,6 +85,26 @@ public class BuildingInstance implements IBuildingState {
     @Override
     public ResourceDelta getBaseProduction() {
         return description.getBaseProduction();
+    }
+
+    @Override
+    public int getEnergyProduction() {
+        return description.getEnergyProduction();
+    }
+
+    @Override
+    public int getEnergyConsumption() {
+        return description.getEnergyConsumption();
+    }
+
+    @Override
+    public int getNetEnergy() {
+        return description.getNetEnergy();
+    }
+
+    @Override
+    public boolean hasEnergyAccess() {
+        return powered;
     }
 
     @Override
