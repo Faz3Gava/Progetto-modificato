@@ -47,6 +47,18 @@ public interface IGridReadPort {
         return getBuilding(point);
     }
 
+    default IBuildingState getBuilding(String id) {
+        return getBuildingById(id).orElse(null);
+    }
+
+    default IBuildingState GetBuilding(String id) {
+        return getBuilding(id);
+    }
+
+    default Optional<IBuildingState> GetBuildingById(String id) {
+        return getBuildingById(id);
+    }
+
     default Optional<IBuildingState> getBuildingAt(int x, int y) {
         return Optional.ofNullable(getBuilding(x, y));
     }

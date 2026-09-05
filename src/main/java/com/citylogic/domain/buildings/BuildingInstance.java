@@ -82,6 +82,26 @@ public class BuildingInstance implements IBuildingState {
     }
 
     @Override
+    public boolean isOccupied() {
+        return true;
+    }
+
+    @Override
+    public boolean IsOccupied() {
+        return isOccupied();
+    }
+
+    @Override
+    public BuildingInstance GetBuilding() {
+        return this;
+    }
+
+    @Override
+    public BuildingInstance getBuilding() {
+        return this;
+    }
+
+    @Override
     public String toString() {
         return description.getName() + " at " + position + " (ID: " + id.substring(0, Math.min(8, id.length())) + ")";
     }

@@ -62,12 +62,34 @@ public class SimulationEngineTest {
 
         CitySnapshot after = gameEngine.getCitySnapshot();
         assertEquals(2400.0, after.getBudget(), 0.001); // $2500 - $100
+
+        assertTrue(result.isOccupied());
+        assertTrue(result.IsOccupied());
+        assertNotNull(result.GetBuilding());
+
         assertTrue(grid.getCell(2, 2).isOccupied());
-        assertTrue(grid.isOccupied(2, 2));
-        assertNotNull(grid.GetBuilding(2, 2));
+        assertTrue(grid.getCell(2, 2).IsOccupied());
+        assertTrue(grid.getCell(2, 2).isOccupied);
+        assertTrue(grid.getCell(2, 2).isOccupied(2, 2));
         assertNotNull(grid.getCell(2, 2).GetBuilding());
+        assertNotNull(grid.getCell(2, 2).getBuilding());
+        assertNotNull(grid.getCell(2, 2).GetBuilding(2, 2));
+
+        assertTrue(grid.isOccupied(2, 2));
+        assertTrue(grid.IsOccupied(2, 2));
+        assertTrue(grid.isOccupied(new com.citylogic.domain.core.Point(2, 2)));
+        assertTrue(grid.IsOccupied(new com.citylogic.domain.core.Point(2, 2)));
+        assertNotNull(grid.GetBuilding(2, 2));
+        assertNotNull(grid.getBuilding(2, 2));
+        assertNotNull(grid.GetBuilding(new com.citylogic.domain.core.Point(2, 2)));
+        assertNotNull(grid.GetBuilding(result.getBuilding().getId()));
+
         assertTrue(gameEngine.isOccupied(2, 2));
+        assertTrue(gameEngine.IsOccupied(2, 2));
+        assertTrue(gameEngine.isOccupied(new com.citylogic.domain.core.Point(2, 2)));
         assertNotNull(gameEngine.GetBuilding(2, 2));
+        assertNotNull(gameEngine.getBuilding(2, 2));
+        assertNotNull(gameEngine.GetBuilding(result.getBuilding().getId()));
     }
 
     @Test

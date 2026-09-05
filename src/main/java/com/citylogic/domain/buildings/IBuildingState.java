@@ -15,4 +15,20 @@ public interface IBuildingState {
     ResourceDelta getBaseProduction();
     ResourceDelta getCurrentProduction();
     void setPowered(boolean powered);
+
+    default boolean isOccupied() {
+        return true;
+    }
+
+    default boolean IsOccupied() {
+        return isOccupied();
+    }
+
+    default IBuildingState GetBuilding() {
+        return this;
+    }
+
+    default IBuildingState getBuilding() {
+        return this;
+    }
 }

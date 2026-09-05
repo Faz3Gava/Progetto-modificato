@@ -69,12 +69,44 @@ public class GameEngine {
         return isOccupied(x, y);
     }
 
+    public boolean isOccupied(Point point) {
+        return point != null && isOccupied(point.getX(), point.getY());
+    }
+
+    public boolean IsOccupied(Point point) {
+        return isOccupied(point);
+    }
+
     public IBuildingState getBuilding(int x, int y) {
         return gridReader.getBuilding(x, y);
     }
 
     public IBuildingState GetBuilding(int x, int y) {
         return getBuilding(x, y);
+    }
+
+    public IBuildingState getBuilding(Point point) {
+        return point != null ? getBuilding(point.getX(), point.getY()) : null;
+    }
+
+    public IBuildingState GetBuilding(Point point) {
+        return getBuilding(point);
+    }
+
+    public IBuildingState getBuilding(String id) {
+        return gridReader.getBuildingById(id).orElse(null);
+    }
+
+    public IBuildingState GetBuilding(String id) {
+        return getBuilding(id);
+    }
+
+    public Optional<IBuildingState> getBuildingById(String id) {
+        return gridReader.getBuildingById(id);
+    }
+
+    public Optional<IBuildingState> GetBuildingById(String id) {
+        return getBuildingById(id);
     }
 
     public PlacementResult placeBuilding(int x, int y, String typeId, boolean enforceBudget) {
@@ -199,6 +231,18 @@ public class GameEngine {
             return building;
         }
 
+        public IBuildingState GetBuilding() {
+            return building;
+        }
+
+        public boolean isOccupied() {
+            return successful && building != null;
+        }
+
+        public boolean IsOccupied() {
+            return isOccupied();
+        }
+
         public String getErrorMessage() {
             return errorMessage;
         }
@@ -229,6 +273,18 @@ public class GameEngine {
 
         public IBuildingState getBuilding() {
             return building;
+        }
+
+        public IBuildingState GetBuilding() {
+            return building;
+        }
+
+        public boolean isOccupied() {
+            return building != null;
+        }
+
+        public boolean IsOccupied() {
+            return isOccupied();
         }
 
         public String getErrorMessage() {

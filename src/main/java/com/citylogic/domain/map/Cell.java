@@ -43,11 +43,43 @@ public class Cell {
         return isOccupied();
     }
 
+    public boolean isOccupied(int x, int y) {
+        return isOccupied();
+    }
+
+    public boolean IsOccupied(int x, int y) {
+        return isOccupied();
+    }
+
+    public boolean isOccupied(Point point) {
+        return isOccupied();
+    }
+
+    public boolean IsOccupied(Point point) {
+        return isOccupied();
+    }
+
     public BuildingInstance getBuilding() {
         return currentBuilding;
     }
 
     public BuildingInstance GetBuilding() {
+        return currentBuilding;
+    }
+
+    public BuildingInstance getBuilding(int x, int y) {
+        return currentBuilding;
+    }
+
+    public BuildingInstance GetBuilding(int x, int y) {
+        return currentBuilding;
+    }
+
+    public BuildingInstance getBuilding(Point point) {
+        return currentBuilding;
+    }
+
+    public BuildingInstance GetBuilding(Point point) {
         return currentBuilding;
     }
 

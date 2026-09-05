@@ -64,6 +64,24 @@ public class Grid implements IGridReadPort, IGridCommandPort {
     }
 
     @Override
+    public boolean isOccupied(Point point) {
+        if (point == null) {
+            return false;
+        }
+        return isOccupied(point.getX(), point.getY());
+    }
+
+    @Override
+    public boolean IsOccupied(int x, int y) {
+        return isOccupied(x, y);
+    }
+
+    @Override
+    public boolean IsOccupied(Point point) {
+        return isOccupied(point);
+    }
+
+    @Override
     public BuildingInstance getBuilding(int x, int y) {
         if (!isWithinBounds(x, y)) {
             return null;
@@ -85,6 +103,22 @@ public class Grid implements IGridReadPort, IGridCommandPort {
     @Override
     public BuildingInstance GetBuilding(Point point) {
         return getBuilding(point);
+    }
+
+    @Override
+    public BuildingInstance getBuilding(String id) {
+        if (id == null) return null;
+        return activeBuildings.get(id);
+    }
+
+    @Override
+    public BuildingInstance GetBuilding(String id) {
+        return getBuilding(id);
+    }
+
+    @Override
+    public Optional<IBuildingState> GetBuildingById(String id) {
+        return getBuildingById(id);
     }
 
     @Override
